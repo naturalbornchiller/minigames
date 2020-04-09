@@ -31,45 +31,49 @@ inline Point newFruit() {
 }
 
 void setup() {
-	gameOver = false;
-	dir = RIGHT;
+    gameOver = false;
+    dir = STOP;
     snake.push_back((struct Point){ width/2, height/2 });
     fruit = newFruit();
-	score = 0;
+    score = 0;
     delay = 50000;
-    
+
     initscr();    
     cbreak();
     nodelay(stdscr, true);
     noecho();
-    wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
 }
 
-bool onSnake(Point p) {
-    for (int i = 0; i < snake.size(); i++) {
-        if (snake.at(i) == p)
-            return true;
-    }
+bool onHead(Point pt) {
+    return pt == snake.back();
+}
+
+bool onBody(Point pt) {
+    for (int i = 0; i < snake.size()-1; i++)
+        if (pt == snake[i]) return true;
     return false;
 }
 
 void draw() {
     clear();
 
-	for (int row = 0; row < height; row++) {
-		for (int col = 0; col < width; col++) {
+    for (int row = 0; row < height; row++) {
+        for (int col = 0; col < width; col++) {
             char ch;
-			if (col == 0 || col == width-1 || row == 0 || row == height-1)
-				ch = '#';
-            else if (onSnake((struct Point){col, row}))
+            Point coord = { col, row };
+            if (col == 0 || col == width-1 || row == 0 || row == height-1)
+                ch = '#';
+            else if (onHead(coord))
+                ch = 'O';
+            else if (onBody(coord))
                 ch = 'o';
             else if (row == fruit.y && col == fruit.x)
                 ch = 'F';
             else
                 ch = ' ';
             mvaddch(row, col, ch);
-		}
-	}
+        }
+    }
 
     refresh();
 }
@@ -102,8 +106,8 @@ inline void shiftCoord(int* coord, int addend, int min, int max) {
     *coord = shifted;
 }
 
-Point getNextHead(Point head) {
-    Point next = head;
+Point nextHead() {
+    Point next = snake.back();
     int* member;
     int addend, min = 1, max;
 
@@ -137,31 +141,30 @@ Point getNextHead(Point head) {
 }
 
 void logic() {
-    Point head = snake.back();
-    Point next = getNextHead(head);
+    Point next = nextHead();
     snake.push_back(next);
-    if (!(head == fruit)) {
+    if (!onHead(fruit)) {
         snake.pop_front();
         return;
     }
+    if (onBody(next)) {
+        gameOver = true;
+        return;
+    }
+    // Place next fruit
     do {
         fruit = newFruit();
-    } while (onSnake(fruit));
-    
-    //if (onSnake(head))
-     //   gameOver = true;
-    
+    } while (onHead(fruit) || onBody(fruit));
 }
 
-void start() { }
-
 int main() {
-	setup();
-	while (!gameOver) {
-		draw();
+    setup();
+    while (!gameOver) {
+        draw();
         input();
         logic();
         usleep(delay);
-	}
-	return 0;
+    }
+    // TODO: add gameover screen;
+    return 0;
 }
