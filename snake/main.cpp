@@ -37,8 +37,8 @@ void setup() {
     fruit = newFruit();
 	score = 0;
     delay = 50000;
-    
-    initscr();    
+
+    initscr();
     cbreak();
     nodelay(stdscr, true);
     noecho();
@@ -48,6 +48,15 @@ void setup() {
 bool onSnake(Point p) {
     for (int i = 0; i < snake.size(); i++) {
         if (snake.at(i) == p)
+            return true;
+    }
+    return false;
+}
+
+bool isCollision() {
+    Point head = snake.back();
+    for (int i = 0; i < snake.size()-1; i++) {
+        if (snake.at(i) == head)
             return true;
     }
     return false;
@@ -92,7 +101,7 @@ void input() {
         case 'x':
             gameOver = true;
             break;
-    }    
+    }
 }
 
 inline void shiftCoord(int* coord, int addend, int min, int max) {
@@ -102,8 +111,8 @@ inline void shiftCoord(int* coord, int addend, int min, int max) {
     *coord = shifted;
 }
 
-Point getNextHead(Point head) {
-    Point next = head;
+Point nextHead() {
+    Point next = snake.back();
     int* member;
     int addend, min = 1, max;
 
@@ -136,21 +145,21 @@ Point getNextHead(Point head) {
     return next;
 }
 
-void logic() {
-    Point head = snake.back();
-    Point next = getNextHead(head);
-    snake.push_back(next);
-    if (!(head == fruit)) {
-        snake.pop_front();
-        return;
-    }
+void moveFruit() {
     do {
         fruit = newFruit();
     } while (onSnake(fruit));
-    
-    //if (onSnake(head))
-     //   gameOver = true;
-    
+}
+
+void logic() {
+    Point prevHead = snake.back();
+    snake.push_back(nextHead());
+    if (!(prevHead == fruit))
+        snake.pop_front();
+    else
+        moveFruit();
+    if (isCollision())
+        gameOver = true;
 }
 
 void start() { }
