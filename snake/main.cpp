@@ -1,6 +1,7 @@
-#include <iostream>
 #include <deque>
+#include <iostream>
 #include <ncurses.h>
+#include <unistd.h>
 using namespace std;
 
 enum Direction { STOP = 0, LEFT, RIGHT, UP, DOWN };
@@ -13,13 +14,14 @@ inline bool operator==(const Point& lhs, const Point& rhs) {
     return lhs.x == rhs.x && lhs.y == rhs.y;
 }
 
-bool gameOver;
-const int width = 80;
-const int height = 20;
-deque<Point> snake;
-struct Point fruit;
-int score;
 Direction dir;
+bool gameOver;
+const int height = 20;
+const int width = 80;
+deque<Point> snake;
+int score;
+struct Point fruit;
+double delay;
 
 inline Point newFruit() {
     return (struct Point){
@@ -30,14 +32,17 @@ inline Point newFruit() {
 
 void setup() {
 	gameOver = false;
-	dir = STOP;
+	dir = RIGHT;
     snake.push_back((struct Point){ width/2, height/2 });
     fruit = newFruit();
 	score = 0;
+    delay = 50000;
     
     initscr();    
     cbreak();
+    nodelay(stdscr, true);
     noecho();
+    wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
 }
 
 bool onSnake(Point p) {
@@ -145,6 +150,7 @@ void logic() {
     
     //if (onSnake(head))
      //   gameOver = true;
+    
 }
 
 void start() { }
@@ -155,6 +161,7 @@ int main() {
 		draw();
         input();
         logic();
+        usleep(delay);
 	}
 	return 0;
 }
