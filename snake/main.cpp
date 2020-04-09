@@ -32,7 +32,7 @@ inline Point newFruit() {
 
 void setup() {
 	gameOver = false;
-	dir = RIGHT;
+	dir = STOP;
     snake.push_back((struct Point){ width/2, height/2 });
     fruit = newFruit();
 	score = 0;
@@ -152,6 +152,7 @@ void moveFruit() {
 }
 
 void logic() {
+    if (dir == STOP) return;
     Point prevHead = snake.back();
     snake.push_back(nextHead());
     if (!(prevHead == fruit))
@@ -172,5 +173,6 @@ int main() {
         logic();
         usleep(delay);
 	}
+    // TODO: Message on game over
 	return 0;
 }
