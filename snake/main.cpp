@@ -17,11 +17,13 @@ inline bool operator==(const Point& lhs, const Point& rhs) {
 Direction dir;
 bool gameOver;
 const int height = 20;
-const int width = 80;
+const int width  = 80;
 deque<Point> snake;
 int score;
 struct Point fruit;
 double delay;
+const double horizontalDelay = 30000;
+const double verticalDelay   = 60000;
 
 inline Point newFruit() {
     return (struct Point){
@@ -36,7 +38,7 @@ void setup() {
     snake.push_back((struct Point){ width/2, height/2 });
     fruit = newFruit();
 	score = 0;
-    delay = 50000;
+    delay = horizontalDelay;
 
     initscr();
     cbreak();
@@ -71,7 +73,7 @@ void draw() {
 			if (col == 0 || col == width-1 || row == 0 || row == height-1)
 				ch = '#';
             else if (onSnake((struct Point){col, row}))
-                ch = 'o';
+                ch = '0';
             else if (row == fruit.y && col == fruit.x)
                 ch = 'F';
             else
@@ -89,18 +91,22 @@ void input() {
         case 'a':
             if (dir != RIGHT)
                 dir = LEFT;
+            delay = horizontalDelay;
             break;
         case 's':
             if (dir != UP)
                 dir = DOWN;
+            delay = verticalDelay;
             break;
         case 'd':
             if (dir != LEFT)
                 dir = RIGHT;
+            delay = horizontalDelay;
             break;
         case 'w':
             if (dir != DOWN)
                 dir = UP;
+            delay = verticalDelay;
             break;
         case 'x':
             gameOver = true;
